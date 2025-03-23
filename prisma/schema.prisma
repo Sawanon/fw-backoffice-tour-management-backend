@@ -1,0 +1,112 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean @default(false)
+  authorId  Int?
+  author    User?   @relation(fields: [authorId], references: [id])
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+}
+
+model Admin {
+  id         Int      @id @default(autoincrement())
+  lastLogin  DateTime?
+  email      String   @unique
+  password   String
+  fname      String
+  lname      String
+  mobile     String?
+  permission String
+  status     Status
+  createdTours Tour[] @relation(name: "CreatedTours")
+  updatedTours Tour[] @relation(name: "UpdatedTours")
+}
+
+model TourInformation {
+  id          Int      @id @default(autoincrement())
+  tourId      Int
+  tour        Tour    @relation(fields: [tourId], references: [id])
+  icon        String
+  name        String
+  position    Int
+}
+
+model Tour {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  photo       String?
+  city        City      @relation(fields: [cityId], references: [id])
+  cityId      Int
+  country     Country      @relation(fields: [countryId], references: [id])
+  countryId   Int
+  service     Service      @relation(fields: [serviceId], references: [id])
+  serviceId   Int
+  location    String?
+  email       String   @unique
+  password    String
+  contact     String?
+  mobile      String?
+  tag         String?
+  status      Status
+  createDate  DateTime @default(now())
+  createBy    Admin      @relation(name: "CreatedTours", fields: [createById], references: [id])
+  createById  Int
+  updateDate  DateTime @updatedAt
+  updateBy    Admin?     @relation(name: "UpdatedTours" ,fields: [updateById], references: [id])
+  updateById  Int?
+  tourInformation  TourInformation[]
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+}
+
+model City {
+  id   Int     @id @default(autoincrement())
+  name String  @unique
+  tours Tour[]
+}
+
+model Country {
+  id   Int     @id @default(autoincrement())
+  name String  @unique
+  tours Tour[]
+}
+
+model Service {
+  id   Int     @id @default(autoincrement())
+  name String  @unique
+  tours Tour[]
+}
+
+model Detail {
+  id  Int     @id @default(autoincrement())
+  table String
+  tableId Int
+  type  DetailType
+  detail  String
+  position  Int
+}
+
+enum DetailType {
+  TEXT
+  PHOTO
+}
